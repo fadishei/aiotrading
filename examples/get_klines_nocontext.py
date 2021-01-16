@@ -3,12 +3,13 @@ import logging
 from aiotrading.exchanges.binance.futures import Exchange
 
 async def main():
-    async with Exchange() as exchange:
-        async with exchange.market_stream('btcusdt@trade') as stream:
-            for _ in range(10):
-                data = await stream.read()
-                log.info(data)
-        
+    exchange = Exchange()
+    await exchange.connect()
+    params = {'symbol': 'BTCUSDT', 'interval': '1d', 'limit': 10}
+    j = await exchange.get('klines', params=params)
+    log.info(j)
+    await exchange.disconnect()
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s-%(levelname)s: %(message)s')
     log = logging.getLogger('aiotrading')

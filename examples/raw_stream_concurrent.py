@@ -10,12 +10,12 @@ async def report(stream):
         log.info(data)
 
 async def main():
-    exchange = Exchange()
-    stream1 = exchange.market_stream('btcusdt@kline_3m')
-    stream2 = exchange.market_stream('ethusdt@trade')
-    await asyncio.wait([stream1.open(), stream2.open()])
-    await asyncio.wait([report(stream1), report(stream2)])
-    await asyncio.wait([stream1.close(), stream2.close()])
+    async with Exchange() as exchange:
+        stream1 = exchange.market_stream('btcusdt@kline_3m')
+        stream2 = exchange.market_stream('ethusdt@trade')
+        await asyncio.wait([stream1.open(), stream2.open()])
+        await asyncio.wait([report(stream1), report(stream2)])
+        await asyncio.wait([stream1.close(), stream2.close()])
     
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s-%(levelname)s: %(message)s')
