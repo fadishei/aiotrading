@@ -2,45 +2,31 @@
 
 Crypto exchange APIs are often callback-oriented. This makes coding a nightmare and will distract you from your most important goal of developing a winning strategy.
 
-aiotrading is here to solve this problem. Using it, interacting with exchanges will be as much fun as the following example:
+aiotrading is here to solve this problem. Using it, interacting with exchanges will be as much fun as the following [example](examples/candle_stream.py):
 
-    import asyncio
-    import logging
-    from aiotrading.exchange import BinanceFutures
+    from aiotrading.exchanges.binance.futures import Exchange
 
-    async def main():
-        exchange = BinanceFutures()
-        await exchange.connect()
-        candle_stream = await exchange.open_candle_stream('btcusdt', '3m')
-        for i in range(10):
-            candle = await candle_stream.next_update()
+    exchange = Exchange()
+    async with exchange.candle_stream('btcusdt', '3m') as stream:
+        for _ in range(10):
+            candle = await stream.read()
             log.info(candle)
-        await candle_stream.close()
-        await exchange.disconnect()
-
-    if __name__ == '__main__':
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s-%(levelname)s: %(message)s')
-        log = logging.getLogger('aiotrading')
-        asyncio.get_event_loop().run_until_complete(main())
 	    
 Sample output of this code example is:
 
-    2021-01-14 17:50:58,785-INFO: connecting to exchange
-    2021-01-14 17:51:00,838-INFO: opening candle stream btcusdt@3m
-    2021-01-14 17:51:00,838-INFO: subscribing to websocket for btcusdt@3m
-    2021-01-14 17:51:01,311-INFO: o:39534.56, h:39570.00, l:39522.00, c:39563.49, v:299.306
-    2021-01-14 17:51:01,480-INFO: o:39534.56, h:39570.00, l:39522.00, c:39563.65, v:299.506
-    2021-01-14 17:51:01,959-INFO: o:39563.75, h:39564.61, l:39563.75, c:39564.61, v:0.086
-    2021-01-14 17:51:02,341-INFO: o:39563.75, h:39564.61, l:39563.75, c:39564.53, v:0.119
-    2021-01-14 17:51:02,830-INFO: o:39563.75, h:39564.61, l:39563.75, c:39564.52, v:0.424
-    2021-01-14 17:51:03,195-INFO: o:39563.75, h:39564.61, l:39558.87, c:39561.29, v:6.059
-    2021-01-14 17:51:03,640-INFO: o:39563.75, h:39564.61, l:39558.87, c:39564.53, v:7.072
-    2021-01-14 17:51:04,067-INFO: o:39563.75, h:39564.61, l:39556.84, c:39561.78, v:8.487
-    2021-01-14 17:51:04,331-INFO: o:39563.75, h:39564.61, l:39556.84, c:39560.68, v:8.539
-    2021-01-14 17:51:04,803-INFO: o:39563.75, h:39564.61, l:39556.84, c:39560.70, v:8.592
-    2021-01-14 17:51:04,804-INFO: closing candle stream btcusdt@3m
-    2021-01-14 17:51:04,805-INFO: unsubscribing from websocket for btcusdt@3m
-    2021-01-14 17:51:04,806-INFO: disconnecting from exchange
+    2021-01-16 00:19:48,696-INFO: creating exchange: binance-futures                       
+    2021-01-16 00:19:48,697-INFO: opening canlde stream: btcusdt, 3m
+    2021-01-16 00:19:50,718-INFO: o:37343.16, h:37345.91, l:37250.00, c:37256.14, v:270.707
+    2021-01-16 00:19:51,129-INFO: o:37343.16, h:37345.91, l:37250.00, c:37259.07, v:270.712
+    2021-01-16 00:19:51,515-INFO: o:37343.16, h:37345.91, l:37250.00, c:37259.08, v:270.789
+    2021-01-16 00:19:51,806-INFO: o:37343.16, h:37345.91, l:37250.00, c:37255.81, v:271.064
+    2021-01-16 00:19:52,209-INFO: o:37343.16, h:37345.91, l:37250.00, c:37255.23, v:271.158
+    2021-01-16 00:19:52,452-INFO: o:37343.16, h:37345.91, l:37250.00, c:37255.61, v:271.191
+    2021-01-16 00:19:52,705-INFO: o:37343.16, h:37345.91, l:37250.00, c:37250.00, v:284.017
+    2021-01-16 00:19:53,074-INFO: o:37343.16, h:37345.91, l:37249.74, c:37249.74, v:284.722
+    2021-01-16 00:19:53,378-INFO: o:37343.16, h:37345.91, l:37249.74, c:37250.03, v:284.819
+    2021-01-16 00:19:53,960-INFO: o:37343.16, h:37345.91, l:37249.74, c:37250.03, v:285.049
+    2021-01-16 00:19:53,962-INFO: closing canlde stream: btcusdt, 3m
 
 # Installation
 

@@ -8,7 +8,7 @@ with open("requirements.txt", encoding="utf-8") as r:
 
 setuptools.setup(
     name='aiotrading',
-    version='0.0.1',
+    version='0.0.2',
     author='Hamid Fadishei',
     author_email='fadishei@yahoo.com',
     description='Async trading library based on asyncio',
