@@ -9,7 +9,7 @@ class Trade():
         self.buy = buy
 
     def __str__(self):
-        return f'price:{self.price}, volume:{self.volume}'
+        return f'id:{self.id}, time:{self.time}, price:{self.price}, volume:{self.volume}'
 
     def __repr__(self):
         return self.__str__()

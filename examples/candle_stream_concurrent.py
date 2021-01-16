@@ -5,17 +5,17 @@ from aiotrading.exchanges.binance.futures import Exchange
 log = logging.getLogger('aiotrading')
 finished = False
 
-async def report(stream):
+async def consume(stream):
     while not finished:
-        data = await stream.read()
-        log.info(data)
+        candle = await stream.read()
+        log.info(f'{stream.symbol}, {stream.timeframe}: {candle}')
 
 async def main():
     async with Exchange() as exchange:
-        stream1 = exchange.market_stream('btcusdt@kline_3m')
-        stream2 = exchange.market_stream('ethusdt@trade')
+        stream1 = exchange.candle_stream('btcusdt', '3m')
+        stream2 = exchange.candle_stream('ethusdt', '1h')
         await asyncio.wait([stream1.open(), stream2.open()])
-        await asyncio.wait([report(stream1), report(stream2)])
+        await asyncio.wait([consume(stream1), consume(stream2)])
         await asyncio.wait([stream1.close(), stream2.close()])
     
 if __name__ == '__main__':

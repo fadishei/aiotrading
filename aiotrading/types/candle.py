@@ -14,7 +14,7 @@ class Candle():
         self.closed = closed
 
     def __str__(self):
-        return f'o:{self.open}, h:{self.high}, l:{self.low}, c:{self.close}, v:{self.volume}'
+        return f't:{self.open_time}, o:{self.open}, h:{self.high}, l:{self.low}, c:{self.close}, v:{self.volume}'
 
     def __repr__(self):
         return self.__str__()

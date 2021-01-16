@@ -15,13 +15,7 @@ class TradeStream(MarketStream):
         self.type = 'trade'
 
     async def write(self, d):
-        t = Trade(
-            id = d['a'],
-            time=datetime.fromtimestamp(d['T']/1000),
-            price=Decimal(d['p']),
-            volume=Decimal(d['q']),
-            buy = d['m'],
-        )
+        t = self.exchange.json_to_trade(d)
         return await self.queue.put(t)
     
     def __str__(self):
