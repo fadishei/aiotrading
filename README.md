@@ -2,7 +2,7 @@
 
 Crypto exchange APIs are often callback-oriented. This makes coding a nightmare and will distract you from your most important goal of developing a winning strategy.
 
-aiotrading is here to solve this problem. Using it, interacting with exchanges will be as much fun as the following [example](examples/candle_stream.py):
+aiotrading is here to solve this problem. Using it, interacting with exchanges will be as much fun as the following [example](https://github.com/fadishei/aiotrading/blob/master/examples/candle_stream.py):
 
     from aiotrading.exchanges.binance.futures import Exchange
 
@@ -14,19 +14,20 @@ aiotrading is here to solve this problem. Using it, interacting with exchanges w
 	    
 Sample output of this code example is:
 
-    2021-01-16 00:19:48,696-INFO: creating exchange: binance-futures                       
-    2021-01-16 00:19:48,697-INFO: opening canlde stream: btcusdt, 3m
-    2021-01-16 00:19:50,718-INFO: o:37343.16, h:37345.91, l:37250.00, c:37256.14, v:270.707
-    2021-01-16 00:19:51,129-INFO: o:37343.16, h:37345.91, l:37250.00, c:37259.07, v:270.712
-    2021-01-16 00:19:51,515-INFO: o:37343.16, h:37345.91, l:37250.00, c:37259.08, v:270.789
-    2021-01-16 00:19:51,806-INFO: o:37343.16, h:37345.91, l:37250.00, c:37255.81, v:271.064
-    2021-01-16 00:19:52,209-INFO: o:37343.16, h:37345.91, l:37250.00, c:37255.23, v:271.158
-    2021-01-16 00:19:52,452-INFO: o:37343.16, h:37345.91, l:37250.00, c:37255.61, v:271.191
-    2021-01-16 00:19:52,705-INFO: o:37343.16, h:37345.91, l:37250.00, c:37250.00, v:284.017
-    2021-01-16 00:19:53,074-INFO: o:37343.16, h:37345.91, l:37249.74, c:37249.74, v:284.722
-    2021-01-16 00:19:53,378-INFO: o:37343.16, h:37345.91, l:37249.74, c:37250.03, v:284.819
-    2021-01-16 00:19:53,960-INFO: o:37343.16, h:37345.91, l:37249.74, c:37250.03, v:285.049
-    2021-01-16 00:19:53,962-INFO: closing canlde stream: btcusdt, 3m
+    connecting to exchange: binance-futures
+    opening canlde stream: btcusdt, 3m
+    t:2021-01-16 13:45:00, o:37305.99, h:37305.99, l:37230.00, c:37236.28, v:46.371
+    t:2021-01-16 13:45:00, o:37305.99, h:37305.99, l:37230.00, c:37233.00, v:47.567
+    t:2021-01-16 13:45:00, o:37305.99, h:37305.99, l:37230.00, c:37233.00, v:47.703
+    t:2021-01-16 13:45:00, o:37305.99, h:37305.99, l:37229.00, c:37229.01, v:57.839
+    t:2021-01-16 13:45:00, o:37305.99, h:37305.99, l:37229.00, c:37232.14, v:58.302
+    t:2021-01-16 13:45:00, o:37305.99, h:37305.99, l:37229.00, c:37229.00, v:58.527
+    t:2021-01-16 13:45:00, o:37305.99, h:37305.99, l:37229.00, c:37229.00, v:60.770
+    t:2021-01-16 13:45:00, o:37305.99, h:37305.99, l:37214.81, c:37214.81, v:75.948
+    t:2021-01-16 13:45:00, o:37305.99, h:37305.99, l:37210.00, c:37214.90, v:84.059
+    t:2021-01-16 13:45:00, o:37305.99, h:37305.99, l:37210.00, c:37211.97, v:84.821
+    closing canlde stream: btcusdt, 3m
+    disconnecting from exchange: binance-futures
 
 # Installation
 
