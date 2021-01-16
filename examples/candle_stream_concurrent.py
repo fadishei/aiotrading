@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from aiotrading.exchanges.binance.futures import Exchange
+from aiotrading.exchanges.binance import BinanceFutures
 
 log = logging.getLogger('aiotrading')
 finished = False
@@ -11,7 +11,7 @@ async def consume(stream):
         log.info(f'{stream.symbol}, {stream.timeframe}: {candle}')
 
 async def main():
-    async with Exchange() as exchange:
+    async with BinanceFutures() as exchange:
         stream1 = exchange.candle_stream('btcusdt', '3m')
         stream2 = exchange.candle_stream('ethusdt', '1h')
         await asyncio.wait([stream1.open(), stream2.open()])

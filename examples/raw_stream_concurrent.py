@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from aiotrading.exchanges.binance.futures import Exchange
+from aiotrading.exchanges.binance import BinanceFutures
 
 log = logging.getLogger('aiotrading')
 finished = False
@@ -11,7 +11,7 @@ async def report(stream):
         log.info(data)
 
 async def main():
-    async with Exchange() as exchange:
+    async with BinanceFutures() as exchange:
         stream1 = exchange.market_stream('btcusdt@kline_3m')
         stream2 = exchange.market_stream('ethusdt@trade')
         await asyncio.wait([stream1.open(), stream2.open()])

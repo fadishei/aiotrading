@@ -1,11 +1,11 @@
 import asyncio
 import logging
-from aiotrading.exchanges.binance.futures import Exchange
+from aiotrading.exchanges.binance import BinanceFutures
 
 log = logging.getLogger('aiotrading')
 
 async def main():
-    exchange = Exchange()
+    exchange = BinanceFutures()
     await exchange.connect()
     stream = exchange.market_stream('btcusdt@trade')
     await stream.open()

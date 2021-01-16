@@ -2,7 +2,7 @@ import logging
 from decimal import Decimal
 from datetime import datetime
 from .market_stream import MarketStream
-from ....types.trade import Trade
+from ...types.trade import Trade
 
 log = logging.getLogger('aiotrading')
 

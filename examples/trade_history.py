@@ -1,12 +1,12 @@
 import asyncio
 import logging
 from datetime import datetime
-from aiotrading.exchanges.binance.futures import Exchange
+from aiotrading.exchanges.binance import BinanceFutures
 
 log = logging.getLogger('aiotrading')
 
 async def main():
-    async with Exchange() as exchange:
+    async with BinanceFutures() as exchange:
         trades = await exchange.trade_history('btcusdt', datetime(2020, 1, 1), 10)
         pretty = '\n'.join([str(t) for t in trades])
         log.info(f'result:\n{pretty}')

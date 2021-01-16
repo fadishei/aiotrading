@@ -1,8 +1,11 @@
 import logging
 import asyncio
 import json
+import hmac
+from urllib.parse import urlencode
 import aiohttp
 import websockets
+import time
 from decimal import Decimal
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -10,28 +13,39 @@ from websockets.exceptions import ConnectionClosedOK
 from .market_stream import MarketStream
 from .candle_stream import CandleStream
 from .trade_stream import TradeStream
-from ....types.trade import Trade
-from ....types.candle import Candle
+from ...types.trade import Trade
+from ...types.candle import Candle
 
 log = logging.getLogger('aiotrading')
 
-class Exchange:
+class BinanceFutures:
 
-    def __init__(self):
+    def __init__(self, api_key=None, api_secret=None):
+        self.api_key = api_key
+        self.api_secret = api_secret
         self.name = 'binance-futures'
+        self.restful_uri = 'https://fapi.binance.com/fapi/v1/'
+        self.market_websocket_uri = 'wss://fstream.binance.com/'
         self.market_streams = defaultdict(set)
         self.market_streams_count = 0
         self.market_streams_lock = asyncio.Lock()
-        self.market_websocket_uri = 'wss://fstream.binance.com/'
-        self.restful_uri = 'https://fapi.binance.com/fapi/v1/'
-
+        self.limits = {}
+        
     async def connect(self):
         log.info(f'connecting to exchange: {self}')
-        self.restful_session = aiohttp.ClientSession()
-        
+        j = await self.request('exchangeInfo')
+        for l in j['rateLimits']:
+            if l['intervalNum']==1 and l['interval']=='MINUTE' and l['rateLimitType'] == 'REQUEST_WEIGHT':
+                self.limits['X-MBX-USED-WEIGHT-1M'] = (l['limit'], 60)
+            elif l['intervalNum']==1 and l['interval']=='MINUTE' and l['rateLimitType'] == 'ORDERS':
+                self.limits['X-MBX-ORDER-COUNT-1M'] = (l['limit'], 60)
+            else:
+                raise Exception(f'unrecognized exchange limit: {l}')
+        log.debug('exchange rate limits per second: %s', self.limits)
+       
     async def disconnect(self):
         log.info(f'disconnecting from exchange: {self}')
-        await self.restful_session.close()
+        # nothing to do for this type of exchange
         
     def candle_stream(self, symbol, timeframe):
         return CandleStream(self, symbol, timeframe)
@@ -47,7 +61,7 @@ class Exchange:
             count = min(remained, batch)
             log.debug(f'batch: {start_time}, {count}')
             params = {'symbol': symbol.upper(), 'interval': timeframe, 'startTime': int(start_time.timestamp()*1000), 'limit': count}
-            j = await self.get('klines', params=params)
+            j = await self.request('klines', params=params)
             if len(j) == 0:
                 break
             for d in j:
@@ -65,7 +79,7 @@ class Exchange:
             count = min(remained, batch)
             log.debug(f'batch: {start_id}, {count}')
             params = {'symbol': symbol.upper(), 'fromId': start_id, 'limit': count}
-            j = await self.get('aggTrades', params=params)
+            j = await self.request('aggTrades', params=params)
             if len(j) == 0:
                 break
             for d in j:
@@ -81,7 +95,7 @@ class Exchange:
         count = min(remained, batch)
         log.info(f'fetching trade history of length {count} for {symbol} from {start_time}')
         params = {'symbol': symbol.upper(), 'startTime': int(start_time.timestamp()*1000), 'limit': count}
-        j = await self.get('aggTrades', params=params)
+        j = await self.request('aggTrades', params=params)
         for d in j:
             t = self.json_to_trade(d)
             trades.append(t)
@@ -124,11 +138,47 @@ class Exchange:
     def market_stream(self, name):
         return MarketStream(self, name)
 
-    async def get(self, endpoint, params, sign=False):
-        async with self.restful_session.get(self.restful_uri+endpoint, params=params) as resp:
-            log.debug(f'restful request status: {resp.status}')
-            return await resp.json()
-    
+    async def request(self, endpoint, params={}, method='GET', sign=False):
+        t0 = time.time()
+        headers = {}
+        if sign:
+            params['timestamp'] = int(t0*1000)
+            params['recvWindow'] = 10000
+            qstr = urlencode(params)
+            signature = hmac.new(self.api_secret.encode('utf-8'), qstr.encode('utf-8'), 'sha256').hexdigest()
+            qstr += '&signature=' + signature
+            headers['X-MBX-APIKEY'] = self.api_key
+            endpoint += '?' + qstr
+        async with aiohttp.request(method, self.restful_uri+endpoint, params=params, headers=headers) as resp:
+            if resp.status != 200:
+                log.warning(f'restful resp status: {resp.status}')
+                log.warning(f'restful resp headers: {resp.headers}')
+                text = await resp.text()
+                log.warning(f'restful request text: {text}')
+                raise
+            j = await resp.json()
+            waits = []
+            for h, (limit, per) in self.limits.items():
+                if h in resp.headers:
+                    used = float(resp.headers[h])
+                    remaining = limit - used
+                    wait = per/limit
+                    if remaining > limit/2:
+                        wait *= 0.5
+                    elif remaining < limit/2:
+                        wait *= 1.5
+                    wait -= (time.time() - t0)
+                    log.debug(f'{h} limit: {limit}, remaining: {remaining}, wait: {wait}')
+                    if wait<0:
+                        wait = 0
+                    waits += [wait]
+            if len(waits) > 0:
+                time.sleep(max(waits))
+            elif len(self.limits)>0:
+                for h in resp.headers:
+                    if h.startswith('X-MBX-'):
+                        raise Exception(f'unrecognized rate limit header: {h}')
+            return j
     ##### end of public api
     
     async def market_websocket_task(self):

@@ -4,9 +4,9 @@ Crypto exchange APIs are often callback-oriented. This makes coding a nightmare 
 
 aiotrading is here to solve this problem. Using it, interacting with exchanges will be as much fun as the following [example](https://github.com/fadishei/aiotrading/blob/master/examples/candle_stream.py):
 
-    from aiotrading.exchanges.binance.futures import Exchange
+    from aiotrading.exchanges.binance import BinanceFutures
 
-    exchange = Exchange()
+    exchange = BinanceFutures()
     async with exchange.candle_stream('btcusdt', '3m') as stream:
         for _ in range(10):
             candle = await stream.read()
