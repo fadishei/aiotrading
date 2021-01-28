@@ -1,22 +1,35 @@
 import logging
-from decimal import Decimal
+import asyncio
 from datetime import datetime
+from decimal import Decimal
 from .market_stream import MarketStream
-from ...types.trade import Trade
+from ...types import Trade
 
 log = logging.getLogger('aiotrading')
 
 class TradeStream(MarketStream):
 
-    
-    def __init__(self, exchange, symbol):
-        super().__init__(exchange, f'{symbol}@aggTrade')
-        self.symbol = symbol
-        self.type = 'trade'
+    def __init__(self, exchange, symbols):
+        self.symbols = symbols
+        names = [f'{symbol}@aggTrade' for symbol in symbols]
+        super().__init__(exchange, names)
 
-    async def write(self, d):
-        t = self.exchange.json_to_trade(d)
-        return await self.queue.put(t)
-    
+    async def write(self, msg):
+        if msg['stream'] in self.names:
+            d = msg['data']
+            symbol = d['s'].lower()
+            if f'{symbol}@aggTrade' in self.names: 
+                t = Trade(
+                    symbol = symbol,
+                    id = d['a'],
+                    time=datetime.fromtimestamp(d['T']/1000),
+                    price=Decimal(d['p']),
+                    volume=Decimal(d['q']),
+                    buy = d['m']
+                )
+                await self.queue.put(t)
+
     def __str__(self):
-        return f'{self.symbol}'
+        p = 's' if len(self.symbols)>1 else ''
+        s = ', '.join(self.symbols)
+        return f'trade stream{p} {s}'

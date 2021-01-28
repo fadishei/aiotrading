@@ -5,15 +5,11 @@ from aiotrading.exchanges.binance import BinanceFutures
 log = logging.getLogger('aiotrading')
 
 async def main():
-    exchange = BinanceFutures()
-    await exchange.connect()
-    stream = exchange.market_stream('btcusdt@trade')
-    await stream.open()
-    for _ in range(10):
-        data = await stream.read()
-        log.info(data)
-    await stream.close()
-    await exchange.disconnect()
+    async with BinanceFutures() as exchange:
+        async with exchange.candles_stream([('btcusdt', '3m'), ('ethusdt', '1h')]) as stream:
+            for i in range(10):
+                candle = await stream.read()
+                log.info(candle)
         
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(message)s')

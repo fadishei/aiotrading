@@ -9,7 +9,7 @@ async def main():
     async with BinanceFutures() as exchange:
         trades = await exchange.trade_history('btcusdt', datetime(2020, 1, 1), 10)
         pretty = '\n'.join([str(t) for t in trades])
-        log.info(f'result:\n{pretty}')
+        log.info(pretty)
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(message)s')

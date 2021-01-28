@@ -7,7 +7,7 @@ log = logging.getLogger('aiotrading')
 async def main():
     async with BinanceFutures() as exchange:
         async with exchange.market_stream('btcusdt@trade') as stream:
-            for _ in range(10):
+            for i in range(10):
                 data = await stream.read()
                 log.info(data)
         
