@@ -36,8 +36,6 @@ Sample output of this code example is:
     
 # Design Principles
 
-A trading library ...
-
 - **Thin portable API**. Lots of exchanges exist in the wild and developers like to migrate from exchange to exchange with no hassle.
 - **Easy concurrency**. No callbacks as they distract from the goal and introduce errors.
 
