@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from datetime import datetime
-from aiotrading.exchanges.binance import BinanceFutures
+from aiotrading.exchange import BinanceFutures
 
 log = logging.getLogger('aiotrading')
 
